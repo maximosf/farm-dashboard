@@ -3,498 +3,456 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Phone Farm Dashboard</title>
+<title>Farm Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  
-  body {
-    background: #0a0a0f;
-    color: #e2e8f0;
-    font-family: 'SF Mono', 'Fira Code', monospace;
-    min-height: 100vh;
-  }
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
-  header {
-    background: #0f0f1a;
-    border-bottom: 1px solid #1e1e3a;
-    padding: 16px 28px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
+:root {
+  --bg: #05050f;
+  --surface: #0a0a1a;
+  --surface2: #0f0f22;
+  --border: #1c1c35;
+  --border2: #252545;
+  --accent: #7c3aed;
+  --accent2: #a855f7;
+  --accent3: #c084fc;
+  --blue: #3b82f6;
+  --green: #10b981;
+  --red: #ef4444;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #475569;
+}
 
-  .logo {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 3px;
-    color: #7c3aed;
-    text-transform: uppercase;
-  }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-  .header-stats {
-    display: flex;
-    gap: 32px;
-  }
+/* Background glow */
+body::before {
+  content: '';
+  position: fixed;
+  top: -200px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 400px;
+  background: radial-gradient(ellipse, rgba(124,58,237,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
 
-  .hstat {
-    text-align: right;
-  }
+/* HEADER */
+header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,5,15,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
-  .hstat-val {
-    font-size: 20px;
-    font-weight: 700;
-    color: #a78bfa;
-  }
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -0.3px;
+}
 
-  .hstat-label {
-    font-size: 10px;
-    color: #475569;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
+.logo-icon {
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  box-shadow: 0 0 20px rgba(124,58,237,0.4);
+}
 
-  .last-update {
-    font-size: 11px;
-    color: #334155;
-  }
+.header-stats {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
 
-  main {
-    padding: 24px 28px;
-    max-width: 1600px;
-    margin: 0 auto;
-  }
+.hstat {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 7px 14px;
+}
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: 16px;
-  }
+.hstat-val {
+  font-size: 18px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent2), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
 
-  .phone-card {
-    background: #0f0f1a;
-    border: 1px solid #1e1e3a;
-    border-radius: 12px;
-    overflow: hidden;
-    transition: border-color 0.2s;
-  }
+.hstat-label {
+  font-size: 10px;
+  color: var(--text3);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
-  .phone-card:hover {
-    border-color: #312e81;
-  }
+.divider { width: 1px; height: 30px; background: var(--border); margin: 0 4px; }
 
-  .phone-card.running {
-    border-color: #1d4ed8;
-  }
+.btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: white;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 0 20px rgba(124,58,237,0.3);
+  transition: opacity 0.2s;
+}
 
-  .phone-card.error {
-    border-color: #7f1d1d;
-  }
+.btn:hover { opacity: 0.85; }
 
-  .card-header {
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid #1e1e3a;
-  }
+.timer-text { font-size: 11px; color: var(--text3); }
 
-  .phone-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
+/* MAIN */
+main {
+  padding: 24px 28px;
+  max-width: 1500px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
 
-  .phone-num {
-    font-size: 18px;
-    font-weight: 800;
-    color: #7c3aed;
-  }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
 
-  .phone-ip {
-    font-size: 11px;
-    color: #475569;
-  }
+/* PHONE CARD */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  transition: border-color 0.3s, transform 0.2s;
+}
 
-  .status-badge {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 3px 10px;
-    border-radius: 20px;
-  }
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(124,58,237,0.5), transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
 
-  .status-running {
-    background: #1e3a8a22;
-    color: #60a5fa;
-    border: 1px solid #1d4ed844;
-  }
+.card:hover { transform: translateY(-2px); border-color: var(--border2); }
+.card:hover::before { opacity: 1; }
+.card.running { border-color: rgba(59,130,246,0.3); }
+.card.running::before { opacity: 1; background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5), transparent); }
+.card.error { border-color: rgba(239,68,68,0.3); }
 
-  .status-idle {
-    background: #1e293b;
-    color: #475569;
-    border: 1px solid #1e293b;
-  }
+/* Card header */
+.card-head {
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, var(--surface2) 0%, var(--surface) 100%);
+}
 
-  .status-error {
-    background: #7f1d1d22;
-    color: #f87171;
-    border: 1px solid #7f1d1d44;
-  }
+.phone-label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
 
-  .card-body {
-    padding: 14px 18px;
-  }
+.phone-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(168,85,247,0.1));
+  border: 1px solid rgba(124,58,237,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--accent3);
+}
 
-  .progress-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
+.phone-meta { line-height: 1; }
+.phone-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.phone-ip { font-size: 11px; color: var(--text3); margin-top: 3px; font-family: monospace; }
 
-  .progress-label {
-    font-size: 11px;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+.pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 
-  .progress-val {
-    font-size: 11px;
-    color: #94a3b8;
-  }
+.pill-running { background: rgba(59,130,246,0.1); color: #60a5fa; border: 1px solid rgba(59,130,246,0.2); }
+.pill-idle { background: rgba(71,85,105,0.15); color: var(--text3); border: 1px solid var(--border); }
+.pill-error { background: rgba(239,68,68,0.1); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
 
-  .progress-bar {
-    height: 3px;
-    background: #1e1e3a;
-    border-radius: 2px;
-    margin-bottom: 14px;
-    overflow: hidden;
-  }
+.dot { width: 6px; height: 6px; border-radius: 50%; background: #3b82f6; animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.8)} }
 
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #4f46e5, #7c3aed);
-    border-radius: 2px;
-    transition: width 0.5s ease;
-  }
+/* Card body */
+.card-body { padding: 16px 18px; }
 
-  .stats-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 14px;
-  }
+.prog-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
+.prog-label { font-size: 11px; color: var(--text3); font-weight: 500; }
+.prog-val { font-size: 11px; color: var(--accent3); font-weight: 700; }
 
-  .stat-box {
-    background: #0a0a0f;
-    border: 1px solid #1e1e3a;
-    border-radius: 8px;
-    padding: 10px;
-    text-align: center;
-  }
+.prog-bar {
+  height: 4px;
+  background: var(--border);
+  border-radius: 4px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
 
-  .stat-val {
-    font-size: 20px;
-    font-weight: 800;
-    color: #c4b5fd;
-  }
+.prog-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+  box-shadow: 0 0 8px rgba(124,58,237,0.5);
+}
 
-  .stat-label {
-    font-size: 9px;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
 
-  .current-video {
-    font-size: 10px;
-    color: #334155;
-    background: #0a0a0f;
-    border: 1px solid #1e1e3a;
-    border-radius: 6px;
-    padding: 6px 10px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    margin-bottom: 12px;
-  }
+.stat-box {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 8px;
+  text-align: center;
+}
 
-  .accounts-section {
-    border-top: 1px solid #1e1e3a;
-    padding-top: 12px;
-  }
+.stat-box:hover { border-color: var(--border2); }
 
-  .accounts-title {
-    font-size: 10px;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-    display: flex;
-    justify-content: space-between;
-  }
+.stat-val {
+  font-size: 20px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--accent2), var(--accent3));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1;
+}
 
-  .accounts-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    max-height: 180px;
-    overflow-y: auto;
-  }
+.stat-lbl {
+  font-size: 9px;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-top: 4px;
+  font-weight: 500;
+}
 
-  .accounts-list::-webkit-scrollbar {
-    width: 3px;
-  }
+.vid-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 7px 10px;
+  margin-bottom: 14px;
+}
 
-  .accounts-list::-webkit-scrollbar-track {
-    background: #0a0a0f;
-  }
+.vid-icon { font-size: 10px; }
+.vid-name { font-size: 10px; color: var(--text3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-family: monospace; }
 
-  .accounts-list::-webkit-scrollbar-thumb {
-    background: #1e1e3a;
-    border-radius: 2px;
-  }
+/* Accounts */
+.accs-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
 
-  .account-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 5px 8px;
-    background: #0a0a0f;
-    border-radius: 6px;
-    border: 1px solid #1e1e3a;
-  }
+.accs-title { font-size: 10px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px; }
+.accs-count { font-size: 10px; color: var(--accent3); font-weight: 700; }
 
-  .account-row.active {
-    border-color: #312e81;
-    background: #0f0f20;
-  }
+.accs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 170px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
 
-  .account-name {
-    font-size: 11px;
-    color: #94a3b8;
-  }
+.acc-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: var(--bg);
+  transition: border-color 0.2s;
+}
 
-  .account-row.active .account-name {
-    color: #a78bfa;
-  }
+.acc-row:hover { border-color: var(--border); }
+.acc-row.active {
+  border-color: rgba(124,58,237,0.4);
+  background: rgba(124,58,237,0.07);
+}
 
-  .account-followers {
-    font-size: 11px;
-    color: #475569;
-  }
-
-  .account-followers span {
-    color: #7c3aed;
-    font-weight: 700;
-  }
-
-  .dot-pulse {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: #3b82f6;
-    display: inline-block;
-    margin-right: 6px;
-    animation: pulse 1.5s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.3; }
-  }
-
-  .refresh-btn {
-    background: none;
-    border: 1px solid #1e1e3a;
-    color: #475569;
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 11px;
-    cursor: pointer;
-    font-family: inherit;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    transition: all 0.2s;
-  }
-
-  .refresh-btn:hover {
-    border-color: #4f46e5;
-    color: #a78bfa;
-  }
-
-  .countdown {
-    font-size: 11px;
-    color: #334155;
-  }
+.acc-name { font-size: 11px; color: var(--text2); font-weight: 500; }
+.acc-row.active .acc-name { color: var(--accent3); font-weight: 600; }
+.acc-followers { font-size: 11px; font-weight: 700; color: var(--accent2); }
 </style>
 </head>
 <body>
-
 <header>
-  <div class="logo">⬡ Farm Dashboard</div>
+  <div class="logo">
+    <div class="logo-icon">⬡</div>
+    Farm Dashboard
+  </div>
   <div class="header-stats">
     <div class="hstat">
-      <div class="hstat-val" id="total-accounts">137</div>
+      <div class="hstat-val" id="h-accounts">137</div>
       <div class="hstat-label">Accounts</div>
     </div>
+    <div class="divider"></div>
     <div class="hstat">
-      <div class="hstat-val" id="total-reels">0</div>
+      <div class="hstat-val" id="h-reels">—</div>
       <div class="hstat-label">Reels Today</div>
     </div>
+    <div class="divider"></div>
     <div class="hstat">
-      <div class="hstat-val" id="active-phones">0</div>
+      <div class="hstat-val" id="h-active">—</div>
       <div class="hstat-label">Active Phones</div>
     </div>
-  </div>
-  <div style="display:flex;align-items:center;gap:16px;">
-    <span class="countdown" id="countdown">Refreshing in 30s</span>
-    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+    <div class="divider"></div>
+    <span class="timer-text" id="timer">30s</span>
+    <button class="btn" onclick="load()">↻ Refresh</button>
   </div>
 </header>
 
 <main>
-  <div class="grid" id="phones-grid"></div>
+  <div class="grid" id="grid"></div>
 </main>
 
 <script>
-const PHONE_CONFIG = {
-  1: { ip: "192.168.1.9",  accounts: 10,  proxy: "GridPanel" },
-  2: { ip: "192.168.1.12", accounts: 30,  proxy: "GridPanel" },
-  3: { ip: "192.168.1.14", accounts: 20,  proxy: "GridPanel" },
-  4: { ip: "192.168.1.10", accounts: 20,  proxy: "GridPanel" },
-  5: { ip: "192.168.1.11", accounts: 19,  proxy: "GridPanel" },
-  6: { ip: "192.168.1.15", accounts: 20,  proxy: "GridPanel" },
-  7: { ip: "192.168.1.13", accounts: 18,  proxy: "GridPanel" },
+const PHONES = {
+  1:{ip:'192.168.1.9',accounts:10},
+  2:{ip:'192.168.1.12',accounts:30},
+  3:{ip:'192.168.1.14',accounts:20},
+  4:{ip:'192.168.1.10',accounts:20},
+  5:{ip:'192.168.1.11',accounts:19},
+  6:{ip:'192.168.1.15',accounts:20},
+  7:{ip:'192.168.1.13',accounts:18}
 };
 
-// Load status from local API server
-async function loadData() {
-  let totalReels = 0;
-  let activePhones = 0;
-  const grid = document.getElementById('phones-grid');
-  grid.innerHTML = '';
+function fmt(n){if(!n||n==='?')return'—';n=parseInt(n);if(n>=1000)return(n/1000).toFixed(1)+'K';return n;}
 
-  for (const [num, cfg] of Object.entries(PHONE_CONFIG)) {
-    let status = null;
-    try {
-      const res = await fetch(`/status/${num}`, { signal: AbortSignal.timeout(3000) });
-      status = await res.json();
-    } catch(e) {
-      status = null;
-    }
-
-    const isRunning = status && status.status === 'running';
-    const isError = status && status.status === 'error';
-    if (isRunning) activePhones++;
-    if (status) totalReels += status.reels_posted || 0;
-
-    const pct = status ? Math.round((status.container / status.total_containers) * 100) : 0;
-
-    const card = document.createElement('div');
-    card.className = `phone-card ${isRunning ? 'running' : isError ? 'error' : ''}`;
-
-    const accounts = status?.accounts || generateMockAccounts(cfg.accounts);
-
-    card.innerHTML = `
-      <div class="card-header">
-        <div class="phone-title">
-          <div class="phone-num">P${num}</div>
-          <div>
-            <div style="font-size:12px;color:#94a3b8;">${cfg.ip}</div>
-            <div class="phone-ip">${cfg.proxy}</div>
+async function load(){
+  let totalReels=0,active=0;
+  const grid=document.getElementById('grid');
+  grid.innerHTML='';
+  for(const[num,cfg]of Object.entries(PHONES)){
+    let s=null;
+    try{const r=await fetch('/status/'+num,{signal:AbortSignal.timeout(3000)});s=await r.json();}catch(e){}
+    const running=s?.status==='running';
+    const error=s?.status==='error';
+    if(running)active++;
+    if(s)totalReels+=s.reels_posted||0;
+    const pct=s?Math.min(100,Math.round((s.container/s.total_containers)*100)):0;
+    const accounts=s?.accounts||{};
+    const card=document.createElement('div');
+    card.className='card'+(running?' running':error?' error':'');
+    const accRows=Array.from({length:cfg.accounts},(_,i)=>{
+      const acc=accounts[i+1]||{};
+      const isActive=s?.current_container===i+1;
+      return`<div class="acc-row${isActive?' active':''}"><span class="acc-name">Account ${i+1}</span><span class="acc-followers">${acc.followers?fmt(acc.followers):'—'}</span></div>`;
+    }).join('');
+    card.innerHTML=`
+      <div class="card-head">
+        <div class="phone-label">
+          <div class="phone-num">${num}</div>
+          <div class="phone-meta">
+            <div class="phone-title">Phone ${num}</div>
+            <div class="phone-ip">${cfg.ip}</div>
           </div>
         </div>
-        <div class="status-badge ${isRunning ? 'status-running' : isError ? 'status-error' : 'status-idle'}">
-          ${isRunning ? '<span class="dot-pulse"></span>' : ''}${isRunning ? 'Running' : isError ? 'Error' : 'Idle'}
+        <div class="pill ${running?'pill-running':error?'pill-error':'pill-idle'}">
+          ${running?'<span class="dot"></span>':''}${running?'Running':error?'Error':'Idle'}
         </div>
       </div>
       <div class="card-body">
-        ${status ? `
-        <div class="progress-row">
-          <span class="progress-label">Container ${status.container}/${status.total_containers}</span>
-          <span class="progress-val">${pct}%</span>
+        <div class="prog-row">
+          <span class="prog-label">Container ${s?s.container:0} / ${s?s.total_containers:cfg.accounts}</span>
+          <span class="prog-val">${pct}%</span>
         </div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-        ` : `
-        <div class="progress-row"><span class="progress-label">No active session</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
-        `}
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
         <div class="stats-row">
-          <div class="stat-box">
-            <div class="stat-val">${cfg.accounts}</div>
-            <div class="stat-label">Accounts</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-val">${status?.reels_posted || 0}</div>
-            <div class="stat-label">Reels</div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-val">${status?.reels_verified || 0}</div>
-            <div class="stat-label">Verified</div>
-          </div>
+          <div class="stat-box"><div class="stat-val">${cfg.accounts}</div><div class="stat-lbl">Accounts</div></div>
+          <div class="stat-box"><div class="stat-val">${s?.reels_posted??'—'}</div><div class="stat-lbl">Reels</div></div>
+          <div class="stat-box"><div class="stat-val">${s?.reels_verified??'—'}</div><div class="stat-lbl">Verified</div></div>
         </div>
-        ${status?.current_video ? `<div class="current-video">▶ ${status.current_video}</div>` : ''}
-        <div class="accounts-section">
-          <div class="accounts-title">
-            <span>Accounts</span>
-            <span>${cfg.accounts} total</span>
-          </div>
-          <div class="accounts-list">
-            ${accounts.map((a, i) => `
-              <div class="account-row ${status && status.current_container === i+1 ? 'active' : ''}">
-                <span class="account-name">${a.name}</span>
-                <span class="account-followers"><span>${formatNum(a.followers)}</span> followers</span>
-              </div>
-            `).join('')}
-          </div>
+        ${s?.current_video?`<div class="vid-row"><span class="vid-icon">▶</span><span class="vid-name">${s.current_video}</span></div>`:''}
+        <div class="accs-head">
+          <span class="accs-title">Accounts</span>
+          <span class="accs-count">${cfg.accounts} total</span>
         </div>
-      </div>
-    `;
+        <div class="accs-list">${accRows}</div>
+      </div>`;
     grid.appendChild(card);
   }
-
-  document.getElementById('total-reels').textContent = totalReels;
-  document.getElementById('active-phones').textContent = activePhones;
-  document.getElementById('countdown').textContent = 'Refreshing in 30s';
-  resetCountdown();
+  document.getElementById('h-reels').textContent=totalReels||'—';
+  document.getElementById('h-active').textContent=active||'—';
+  startTimer();
 }
 
-function formatNum(n) {
-  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
-  return n;
+let t;
+function startTimer(){
+  clearInterval(t);let s=30;
+  document.getElementById('timer').textContent=s+'s';
+  t=setInterval(()=>{s--;document.getElementById('timer').textContent=s+'s';if(s<=0){clearInterval(t);load();}},1000);
 }
-
-function generateMockAccounts(count) {
-  const names = ['Maddie','Sofia','Emma','Lily','Chloe','Mia','Zoe','Ava','Ella','Grace'];
-  return Array.from({length: count}, (_, i) => ({
-    name: names[i % names.length] + ' ' + (i+1),
-    followers: Math.floor(Math.random() * 5000)
-  }));
-}
-
-let countdownTimer;
-let seconds = 30;
-
-function resetCountdown() {
-  clearInterval(countdownTimer);
-  seconds = 30;
-  countdownTimer = setInterval(() => {
-    seconds--;
-    document.getElementById('countdown').textContent = `Refreshing in ${seconds}s`;
-    if (seconds <= 0) {
-      clearInterval(countdownTimer);
-      loadData();
-    }
-  }, 1000);
-}
-
-loadData();
+load();
 </script>
 </body>
 </html>
