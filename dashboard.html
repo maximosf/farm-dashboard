@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phone Farm Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    background: #0a0a0f;
+    color: #e2e8f0;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    min-height: 100vh;
+  }
+
+  header {
+    background: #0f0f1a;
+    border-bottom: 1px solid #1e1e3a;
+    padding: 16px 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: #7c3aed;
+    text-transform: uppercase;
+  }
+
+  .header-stats {
+    display: flex;
+    gap: 32px;
+  }
+
+  .hstat {
+    text-align: right;
+  }
+
+  .hstat-val {
+    font-size: 20px;
+    font-weight: 700;
+    color: #a78bfa;
+  }
+
+  .hstat-label {
+    font-size: 10px;
+    color: #475569;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .last-update {
+    font-size: 11px;
+    color: #334155;
+  }
+
+  main {
+    padding: 24px 28px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+
+  .phone-card {
+    background: #0f0f1a;
+    border: 1px solid #1e1e3a;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+
+  .phone-card:hover {
+    border-color: #312e81;
+  }
+
+  .phone-card.running {
+    border-color: #1d4ed8;
+  }
+
+  .phone-card.error {
+    border-color: #7f1d1d;
+  }
+
+  .card-header {
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid #1e1e3a;
+  }
+
+  .phone-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .phone-num {
+    font-size: 18px;
+    font-weight: 800;
+    color: #7c3aed;
+  }
+
+  .phone-ip {
+    font-size: 11px;
+    color: #475569;
+  }
+
+  .status-badge {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+
+  .status-running {
+    background: #1e3a8a22;
+    color: #60a5fa;
+    border: 1px solid #1d4ed844;
+  }
+
+  .status-idle {
+    background: #1e293b;
+    color: #475569;
+    border: 1px solid #1e293b;
+  }
+
+  .status-error {
+    background: #7f1d1d22;
+    color: #f87171;
+    border: 1px solid #7f1d1d44;
+  }
+
+  .card-body {
+    padding: 14px 18px;
+  }
+
+  .progress-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .progress-label {
+    font-size: 11px;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .progress-val {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  .progress-bar {
+    height: 3px;
+    background: #1e1e3a;
+    border-radius: 2px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4f46e5, #7c3aed);
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .stat-box {
+    background: #0a0a0f;
+    border: 1px solid #1e1e3a;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-size: 20px;
+    font-weight: 800;
+    color: #c4b5fd;
+  }
+
+  .stat-label {
+    font-size: 9px;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .current-video {
+    font-size: 10px;
+    color: #334155;
+    background: #0a0a0f;
+    border: 1px solid #1e1e3a;
+    border-radius: 6px;
+    padding: 6px 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 12px;
+  }
+
+  .accounts-section {
+    border-top: 1px solid #1e1e3a;
+    padding-top: 12px;
+  }
+
+  .accounts-title {
+    font-size: 10px;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .accounts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .accounts-list::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .accounts-list::-webkit-scrollbar-track {
+    background: #0a0a0f;
+  }
+
+  .accounts-list::-webkit-scrollbar-thumb {
+    background: #1e1e3a;
+    border-radius: 2px;
+  }
+
+  .account-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 8px;
+    background: #0a0a0f;
+    border-radius: 6px;
+    border: 1px solid #1e1e3a;
+  }
+
+  .account-row.active {
+    border-color: #312e81;
+    background: #0f0f20;
+  }
+
+  .account-name {
+    font-size: 11px;
+    color: #94a3b8;
+  }
+
+  .account-row.active .account-name {
+    color: #a78bfa;
+  }
+
+  .account-followers {
+    font-size: 11px;
+    color: #475569;
+  }
+
+  .account-followers span {
+    color: #7c3aed;
+    font-weight: 700;
+  }
+
+  .dot-pulse {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #3b82f6;
+    display: inline-block;
+    margin-right: 6px;
+    animation: pulse 1.5s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .refresh-btn {
+    background: none;
+    border: 1px solid #1e1e3a;
+    color: #475569;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+
+  .refresh-btn:hover {
+    border-color: #4f46e5;
+    color: #a78bfa;
+  }
+
+  .countdown {
+    font-size: 11px;
+    color: #334155;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">⬡ Farm Dashboard</div>
+  <div class="header-stats">
+    <div class="hstat">
+      <div class="hstat-val" id="total-accounts">137</div>
+      <div class="hstat-label">Accounts</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="total-reels">0</div>
+      <div class="hstat-label">Reels Today</div>
+    </div>
+    <div class="hstat">
+      <div class="hstat-val" id="active-phones">0</div>
+      <div class="hstat-label">Active Phones</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span class="countdown" id="countdown">Refreshing in 30s</span>
+    <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+  </div>
+</header>
+
+<main>
+  <div class="grid" id="phones-grid"></div>
+</main>
+
+<script>
+const PHONE_CONFIG = {
+  1: { ip: "192.168.1.9",  accounts: 10,  proxy: "GridPanel" },
+  2: { ip: "192.168.1.12", accounts: 30,  proxy: "GridPanel" },
+  3: { ip: "192.168.1.14", accounts: 20,  proxy: "GridPanel" },
+  4: { ip: "192.168.1.10", accounts: 20,  proxy: "GridPanel" },
+  5: { ip: "192.168.1.11", accounts: 19,  proxy: "GridPanel" },
+  6: { ip: "192.168.1.15", accounts: 20,  proxy: "GridPanel" },
+  7: { ip: "192.168.1.13", accounts: 18,  proxy: "GridPanel" },
+};
+
+// Load status from local API server
+async function loadData() {
+  let totalReels = 0;
+  let activePhones = 0;
+  const grid = document.getElementById('phones-grid');
+  grid.innerHTML = '';
+
+  for (const [num, cfg] of Object.entries(PHONE_CONFIG)) {
+    let status = null;
+    try {
+      const res = await fetch(`/status/${num}`, { signal: AbortSignal.timeout(3000) });
+      status = await res.json();
+    } catch(e) {
+      status = null;
+    }
+
+    const isRunning = status && status.status === 'running';
+    const isError = status && status.status === 'error';
+    if (isRunning) activePhones++;
+    if (status) totalReels += status.reels_posted || 0;
+
+    const pct = status ? Math.round((status.container / status.total_containers) * 100) : 0;
+
+    const card = document.createElement('div');
+    card.className = `phone-card ${isRunning ? 'running' : isError ? 'error' : ''}`;
+
+    const accounts = status?.accounts || generateMockAccounts(cfg.accounts);
+
+    card.innerHTML = `
+      <div class="card-header">
+        <div class="phone-title">
+          <div class="phone-num">P${num}</div>
+          <div>
+            <div style="font-size:12px;color:#94a3b8;">${cfg.ip}</div>
+            <div class="phone-ip">${cfg.proxy}</div>
+          </div>
+        </div>
+        <div class="status-badge ${isRunning ? 'status-running' : isError ? 'status-error' : 'status-idle'}">
+          ${isRunning ? '<span class="dot-pulse"></span>' : ''}${isRunning ? 'Running' : isError ? 'Error' : 'Idle'}
+        </div>
+      </div>
+      <div class="card-body">
+        ${status ? `
+        <div class="progress-row">
+          <span class="progress-label">Container ${status.container}/${status.total_containers}</span>
+          <span class="progress-val">${pct}%</span>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        ` : `
+        <div class="progress-row"><span class="progress-label">No active session</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+        `}
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-val">${cfg.accounts}</div>
+            <div class="stat-label">Accounts</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">${status?.reels_posted || 0}</div>
+            <div class="stat-label">Reels</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-val">${status?.reels_verified || 0}</div>
+            <div class="stat-label">Verified</div>
+          </div>
+        </div>
+        ${status?.current_video ? `<div class="current-video">▶ ${status.current_video}</div>` : ''}
+        <div class="accounts-section">
+          <div class="accounts-title">
+            <span>Accounts</span>
+            <span>${cfg.accounts} total</span>
+          </div>
+          <div class="accounts-list">
+            ${accounts.map((a, i) => `
+              <div class="account-row ${status && status.current_container === i+1 ? 'active' : ''}">
+                <span class="account-name">${a.name}</span>
+                <span class="account-followers"><span>${formatNum(a.followers)}</span> followers</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  }
+
+  document.getElementById('total-reels').textContent = totalReels;
+  document.getElementById('active-phones').textContent = activePhones;
+  document.getElementById('countdown').textContent = 'Refreshing in 30s';
+  resetCountdown();
+}
+
+function formatNum(n) {
+  if (n >= 1000) return (n/1000).toFixed(1) + 'K';
+  return n;
+}
+
+function generateMockAccounts(count) {
+  const names = ['Maddie','Sofia','Emma','Lily','Chloe','Mia','Zoe','Ava','Ella','Grace'];
+  return Array.from({length: count}, (_, i) => ({
+    name: names[i % names.length] + ' ' + (i+1),
+    followers: Math.floor(Math.random() * 5000)
+  }));
+}
+
+let countdownTimer;
+let seconds = 30;
+
+function resetCountdown() {
+  clearInterval(countdownTimer);
+  seconds = 30;
+  countdownTimer = setInterval(() => {
+    seconds--;
+    document.getElementById('countdown').textContent = `Refreshing in ${seconds}s`;
+    if (seconds <= 0) {
+      clearInterval(countdownTimer);
+      loadData();
+    }
+  }, 1000);
+}
+
+loadData();
+</script>
+</body>
+</html>
